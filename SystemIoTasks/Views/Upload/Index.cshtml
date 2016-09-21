@@ -1,0 +1,84 @@
+﻿
+@{
+    ViewBag.Title = "Upload fil";
+}
+
+<h2>@ViewBag.Title</h2>
+<div class="row">
+    @if (TempData["Message"] != null)
+    {
+        <div class="col-md-12">
+            <div class="alert alert-info">
+                <p>@TempData["Message"]</p>
+            </div>
+        </div>
+    }
+    @using (Html.BeginForm(null, null, FormMethod.Post, new { enctype = "multipart/form-data" }))
+    {
+
+        @Html.ValidationSummary()
+        <div class="col-md-10">
+            <div class="form-group">
+                @Html.TextBox("name",null,new { @class = "form-control" })
+            </div>
+            <div class="form-control">
+                <input type="file" multiple="multiple" name="files" />
+            </div>
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-block btn-primary">Upload</button>
+        </div>
+    }
+</div>
+<div class="row" style="margin-top:40px;">
+    <div class="col-md-12">
+        <p>Upload fil til serveren i en bestemt mappe</p>
+        <div class="alert alert-warning">
+            <p>! Husk og tilfløj enctype="multipart/form-data" til form tagget ellers kan man ikke overføre data med i formen.</p>
+        </div>
+        <pre><code class="c#">
+        //C#
+        [HttpPost]
+        public ActionResult Index(HttpPostedFileBase file)
+        {
+            if ((file != null) && (file.ContentLength > 0))
+            {
+                string fileName = System.IO.Path.GetFileName(file.FileName);
+                //mappen skal eksistere ellers kommer der fejl.
+                string SaveLocation = Server.MapPath("Data") + "\\" + fileName; 
+                try
+                {
+                    file.SaveAs(SaveLocation);
+                    TempData.Add("Message", "The file has been uploaded.");
+                }
+                catch (Exception ex)
+                {
+                    ModelState.AddModelError("", "Error: " + ex.Message);
+                }
+            }
+            else
+            {
+                ModelState.AddModelError("","Please select a file to upload.");
+            }
+            return View();
+        }
+    </code></pre>
+    <pre><code class="razor">
+        //View
+        @((@"@using (Html.BeginForm(null, null, FormMethod.Post, new { enctype = 'multipart/form-data' }))
+        {
+        @Html.ValidationSummary()
+        <div class='col-md-10'>
+            <div class='form-control'>
+                <input type='file' multiple='multiple' name='files' />
+            </div>
+        </div>
+        <div class='col-md-2'>
+            <button type='submit' class='btn btn-block btn-primary'>Upload</button>
+        </div>
+        }"))
+
+    </code></pre>
+    </div>
+</div>
+

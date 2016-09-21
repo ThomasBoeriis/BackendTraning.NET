@@ -1,0 +1,105 @@
+﻿@model SystemIoTasks.Models.GalleryViewModel
+@{
+    ViewBag.Title = "Index";
+}
+@if (TempData["Message"] != null)
+{
+    <div class="alert alert-info add-top">
+        <p>@TempData["Message"]</p>
+    </div>
+}
+<div class="pull-right mainActions">
+    <button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#uploadModal">
+        Upload Billeder
+    </button>
+</div>
+<h2>Billede Database</h2>
+<!-- Button trigger modal -->
+<div class="row">
+    <div class="col-md-3">
+        <h4>Mapper</h4>
+        <div class="panel">
+            <div class="panel-body">
+                @*Alle Folders listes her*@
+                <ul class="nav nav-pills nav-stacked">
+                    @foreach (var folder in Model.RootFolders)
+                    {
+                        <li @(Model.CurrentFolder != null && Model.CurrentFolder == folder.Name ? "class=active" : null)>
+                            <a href="@Url.Action("Index",new { folder = folder.Name })">
+                                <span class="glyphicon @(Model.CurrentFolder != null && Model.CurrentFolder == folder.Name ? "glyphicon-folder-open" : "glyphicon-folder-close")"></span> @folder.Name
+                            </a>
+                        </li>
+                    }
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-9">
+        <h4>Filer i mappen @(Model.CurrentFolder == null ? "Root" : Model.CurrentFolder)</h4>
+        @if (Model.FilesInCurrentFolder != null)
+        {
+            <div class="row">
+                @foreach (var file in Model.FilesInCurrentFolder)
+                {
+
+                    System.Drawing.Image imageFile = System.Drawing.Image.FromFile(file.FullName);
+                    <div class="col-md-4">
+                        <div class="panel">
+                            <div class="image-holder">
+                                <img src="~/@($"GalleryData/{Model.CurrentFolder}/{file.Name}")" alt="@file.Name" />
+                            </div>
+                            <div class="panel-body">
+                                @*<p><b>Name:</b> @file.Name</p>*@
+                                <p><b>Oprettet:</b> @file.CreationTime.ToString("dd-MM-yyyy hh:mm:ss")</p>
+                                <p><b>Højde:</b> @($"{imageFile.Height}px")</p>
+                                <p><b>Bredde:</b> @($"{imageFile.Width}px")</p>
+
+                                <div class="actions row">
+                                    <div class="col-md-6">
+                                        <a href="@Url.Action("DeleteFile",new { file = $"{Model.CurrentFolder}\\{file.Name}"})" class="btn btn-block btn-danger"><span class="glyphicon glyphicon-remove"></span></a>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <a target="_blank" href="@Url.Action("ImageScale",new { file = $"{Model.CurrentFolder}\\{file.Name}", width = imageFile.Width/20, height = imageFile.Height / 20 })" class="btn btn-block btn-primary"><span class="glyphicon glyphicon-resize-small"></span></a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-info">
+                <p>Der er endnu ikke nogle filer i denne mappe.</p>
+            </div>
+        }
+    </div>
+</div>
+
+
+
+<!-- Modal -->
+<div class="modal fade" id="uploadModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            @using (Html.BeginForm("UploadFiles", null, FormMethod.Post, new { enctype = "multipart/form-data" }))
+            {
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="myModalLabel">Upload Billeder</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <input type="file" name="files" class="form-control" multiple="multiple" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Upload</button>
+                </div>
+            }
+
+        </div>
+    </div>
+</div>

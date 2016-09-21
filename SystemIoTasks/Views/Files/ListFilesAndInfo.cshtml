@@ -1,0 +1,84 @@
+﻿@model List<FileInfo>
+@{
+    ViewBag.Title = "Vis Filer fra mappe med fil info";
+}
+
+<h2>@ViewBag.Title</h2>
+
+@if (TempData["Message"] != null)
+{
+    <div class="alert alert-info">
+        <p>@TempData["Message"]</p>
+    </div>
+}
+<div class="row" style="margin-top:40px;">
+    <div class="col-md-12">
+        <p>Viser filer fra mappen "Data/Images"</p>
+
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Preview</th>
+                    <th>Name</th>
+                    <th>Extension </th>
+                    <th>Oprettet</th>
+                    <th></th>
+                </tr>
+
+            </thead>
+
+            @foreach (FileInfo file in Model)
+            {
+                string basePath = Request.Url.GetLeftPart(UriPartial.Authority) + "/Data/Images/";
+                <tr>
+                    <td><img width="200" src="@(Path.Combine(basePath, file.Name))" alt="@file.Name" /></td>
+                    <td>@file.Name</td>
+                    <td>@file.Extension</td>
+                    <td>@file.CreationTime</td>
+                    <td><a href="@Url.Action("DeleteFile",new { file = file.Name })">Slet</a></td>
+
+
+                </tr>
+            }
+        </table>
+
+        <pre><code class="c#">
+        //C#
+        //List Funktion
+        public ActionResult ListFilesAndInfo()
+        {
+            //List alle Filer ud fra en mappe
+            List&lt;string&gt; files = Directory.GetFiles(Server.MapPath("Data/Images")).ToList();
+            //Opret ny Liste til at indeholde fileInfo
+            List&lt;FileInfo&gt; fileWithInfo = new List<FileInfo>();
+            foreach(string file in files)
+            {
+                fileWithInfo.Add(new FileInfo(file));
+            }
+            return View(fileWithInfo);
+        }
+
+        //Slet funktion
+        public ActionResult DeleteFile(string file)
+        {
+            //Find stien til filen
+            string path = Server.MapPath("~/Data/Images/"+file);
+            
+            //Få fat i filen via stien
+            FileInfo fileInfo = new FileInfo(path);
+            //Prøv og slet hvis det fejler send fejlbesked til TempData
+            try {
+                fileInfo.Delete();
+                TempData.Add("Message", "The file has been deleted.");
+            }
+            catch(Exception e)
+            {
+                TempData.Add("Message", e.Message);
+            }
+            //Retunere til vores Action ListFilesAndInfo
+            return RedirectToAction("ListFilesAndInfo");
+        }
+        </code></pre>
+    </div>
+</div>
+

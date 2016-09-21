@@ -1,0 +1,28 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Index</h2>
+
+<div class="row">
+    <div class="col-md-12">
+        @using (Html.BeginForm(null, null, FormMethod.Post, new { enctype = "multipart/form-data" }))
+        {
+            <div class="form-group">
+                <label>Fil</label>
+                <input type="file" class="form-control" name="files" multiple />
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    @Html.Label("maxWidth")
+                    @Html.TextBox("maxWidth", null, new { @class = "form-control" })
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Resize</button>
+
+        }
+    </div>
+</div>

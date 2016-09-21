@@ -1,0 +1,30 @@
+﻿body {
+    background:#f3f3f3;
+    padding-top: 50px;
+    padding-bottom: 20px;
+}
+
+/* Set padding to keep content from hitting the edges */
+.body-content {
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+
+.panel { border:0;}
+
+.mainActions { margin-top:50px;}
+.image-holder {
+    margin:0;
+    padding:0;
+    overflow: hidden;
+    height:200px;
+
+}
+.image-holder img {
+    min-height:200px;
+    width:100%;
+
+}
+
+.add-top {margin-top:20px;}

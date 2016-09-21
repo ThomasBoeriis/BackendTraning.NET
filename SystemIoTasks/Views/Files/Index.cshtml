@@ -1,0 +1,40 @@
+﻿@{
+    ViewBag.Title = "Vis Filer fra mappe";
+}
+
+<h2>@ViewBag.Title</h2>
+<div class="row" style="margin-top:40px;">
+    <div class="col-md-12">
+        <p>Viser filer fra mappen "Data/Images"</p>
+
+     
+
+        <table>
+            <thead>
+                <tr><th>Navn</th></tr>
+            </thead>
+
+            @foreach (string file in Model)
+            {
+                <tr>
+                    <td>@file</td>
+                </tr>
+            }
+        </table>
+        <br />
+        <pre><code class="c#">
+        //C#
+        public ActionResult Index()
+        {
+            //List alle Filer ud fra en mappe
+            List&lt;string&gt; files = Directory.GetFiles(Server.MapPath("~/Data/Images")).ToList();
+            
+            return View(files);
+        }
+        </code></pre>
+    </div>
+</div>
+
+@section scripts {
+    <script>hljs.initHighlightingOnLoad();</script>
+}

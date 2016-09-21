@@ -1,0 +1,82 @@
+﻿@model List<DirectoryInfo>
+@{
+    ViewBag.Title = "Opret mapper";
+}
+
+<h2>@ViewBag.Title</h2>
+<div class="row">
+    @if (TempData["Message"] != null)
+    {
+        <div class="col-md-12">
+            <div class="alert alert-info">
+                <p>@TempData["Message"]</p>
+            </div>
+        </div>
+    }
+    @using (Html.BeginForm(null, null, FormMethod.Post, new { @class = "form-inline" }))
+    {
+        <div class="col-md-12">
+            @Html.ValidationSummary()
+        </div>
+        <div class="col-md-12">
+            <div class="form-group">
+                @Html.TextBox("Name",null, new { @class = "form-control", @placeholder = "Navn på mappe" })
+            </div>
+            <button type="submit" class="btn btn-primary">Opret ny mappe</button>
+        </div>
+    }
+</div><br />
+<div class="row">
+    <div class="col-md-12">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Mapper i folderen</th>
+                    <th>Oprettet</th>
+                </tr>
+            </thead>
+
+            @foreach (DirectoryInfo file in Model)
+            {
+                <tr>
+                    <td>@file.Name</td>
+                    <td>@file.CreationTime.ToLongDateString()</td>
+                </tr>
+            }
+        </table>
+
+        <pre><code class="c#">
+        public ActionResult Index()
+        {
+            List&lt;string&gt; folderPaths = Directory.GetDirectories(Server.MapPath("~/Data/Folders")).ToList();
+            List&lt;DirectoryInfo&gt; folders = new List&lt;DirectoryInfo&gt;();
+            foreach (string folder in folderPaths)
+            {
+                folders.Add(new DirectoryInfo(folder));
+            }
+            return View(folders);
+        }
+
+        [HttpPost]
+        public ActionResult Index(string Name)
+        {
+            string path = Server.MapPath("~/Data/Folders/" + Name);
+            if(!Directory.Exists(path))
+            {
+                Directory.CreateDirectory(path);
+                TempData.Add("Message", "Mappe Oprettet");
+            }else
+            {
+                TempData.Add("Message", $"Mappen med navnet {Name} eksistere allerede");
+            }
+            List&lt;string&gt; folderPaths = Directory.GetDirectories(Server.MapPath("~/Data/Folders")).ToList();
+            List&lt;DirectoryInfo&gt; folders = new List&lt;DirectoryInfo&gt;();
+            foreach(string folder in folderPaths)
+            {
+                folders.Add(new DirectoryInfo(folder));
+            }
+            return View(folders);
+        }
+        </code></pre>
+    </div>
+</div>

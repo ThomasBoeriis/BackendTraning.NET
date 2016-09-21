@@ -1,0 +1,133 @@
+﻿@model SystemIoTasks.Models.ReadFileViewModel
+@{
+    ViewBag.Title = "Læs fil";
+}
+
+<h2>@ViewBag.Title</h2>
+<div class="row">
+    @if (TempData["Message"] != null)
+    {
+        <div class="col-md-12">
+            <div class="alert alert-info">
+                <p>@TempData["Message"]</p>
+            </div>
+        </div>
+    }
+    @using (Html.BeginForm("UpdateFile", null, FormMethod.Post))
+    {
+        <div class="col-md-12">
+            @Html.ValidationSummary()
+        </div>
+        <div class="col-md-12">
+            @Html.HiddenFor(model => model.Name)
+            @Html.TextAreaFor(model => model.Message, new {  @class="form-control", @rows="5"})
+        </div>
+        <div class="col-md-12">
+            <br /><button type="submit" class="btn btn-primary">Opdatere</button>
+        </div>
+    }
+
+
+
+
+    <div class="col-md-12">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Filer i folderen</th>
+                    <th>Oprettet</th>
+                    <th></th>
+                </tr>
+            </thead>
+
+            @foreach (var file in Model.Files)
+            {
+                <tr>
+                    <td>@file.Name</td>
+                    <td>@file.CreationTime.ToLongDateString()</td>
+                    <td><a href="@Url.Action("ReadFile",new { name = file.Name })">Vis</a></td>
+                </tr>
+            }
+        </table>
+    </div>
+    
+</div><br />
+<div class="row">
+    <div class="col-md-12">
+        
+
+        <pre><code class="c#">
+        //ViewModel
+        public class ReadFileViewModel
+        {
+            public string Message { get; set; }
+            public List&lt;FileInfo&gt; Files { get; set; }
+            public ReadFileViewModel()
+            {
+                Files = new List&lt;FileInfo&gt;();
+            }
+        }
+
+
+        //Controller
+        public ActionResult ReadFile(string name)
+        {
+            //Opret ny ViewModel
+            ReadFileViewModel model = new ReadFileViewModel(); 
+            //Vis filer 
+            List&lt;string&gt; files = Directory.GetFiles(Server.MapPath("~/Data/Text")).ToList();
+            //Opret ny Liste til at indeholde fileInfo
+            foreach (string file in files)
+            {
+                model.Files.Add(new FileInfo(file));
+            }
+            if (name != null)
+            {
+                //Read file and return it as a string
+                string path = Server.MapPath("~/Data/Text/" + name);
+                FileInfo fileInfo = new FileInfo(path);
+                if (fileInfo.Exists)
+                {
+                    // Read the file and display it line by line.
+                    StreamReader file = new StreamReader(path);
+                    model.Message = file.ReadToEnd();
+                    file.Close();
+                    return View(model);
+                }
+                else
+                {
+                    TempData.Add("Message", "File not found");
+                }
+            }
+            return View();
+        }
+
+
+        //Opdater Fil
+        [HttpPost]
+        public ActionResult UpdateFile(string name, string message)
+        {
+            if (name != null)
+            {
+                //Read file and return it as a string
+                string path = Server.MapPath("~/Data/Text/" + name);
+                FileInfo fileInfo = new FileInfo(path);
+                
+                if (fileInfo.Exists)
+                {
+                    // Read the file and display it line by line.
+                    StreamWriter file = new StreamWriter(path);
+                    file.Write(message);
+                    file.Close();
+                    TempData.Add("Message", "Fil opdateret");
+                }
+                else
+                {
+                    TempData.Add("Message", "File not found");
+                }
+            }
+            return RedirectToAction("ReadFile");
+        }
+        </code></pre>
+    </div>
+</div>
